@@ -7,4 +7,5 @@
    * Arduino Uno
    * Arduino IDE
  ## Pinagem
-![Pinout_ECU_Central](https://user-images.githubusercontent.com/65618285/120245683-4c623000-c244-11eb-8247-a132b6487f48.jpg)
+![Pinout_ECU_Central](https://user-images.githubusercontent.com/65618285/120245766-a4993200-c244-11eb-979c-5e5e5b9236c4.jpg)
+
