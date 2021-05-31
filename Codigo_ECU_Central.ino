@@ -14,7 +14,7 @@
 #include <SPI.h> // Biblioteca de comunicação do módulo CAN
 
 // PROTÓTIPO DAS FUNÇÕES
-int Critico_Freio();
+int Freio_Estacionario();
 float Temperatura_CVT();
 void Transdutores();
 
@@ -46,18 +46,22 @@ float ValorTrans2 = 0.0;
 
 void setup() 
 {
+  // Definição dos pinos
   pinMode(PIN_Freio, INPUT);
   pinMode(PIN_Trans1, INPUT);
   pinMode(PIN_Trans2, INPUT);
-  
-  SERIAL_PORT_MONITOR.begin(115200);
-    while(!Serial){};
 
-    while (CAN_OK != CAN.begin(CAN_500KBPS)) {             // init can bus : baudrate = 500k
-        SERIAL_PORT_MONITOR.println("CAN init fail, retry...");
-        delay(100);
-    }
-    SERIAL_PORT_MONITOR.println("CAN init ok!");
+  // Cria Comunicação Serial
+  SERIAL_PORT_MONITOR.begin(115200);
+  // Verifica se a Serial foi iniciada
+  while(!Serial){};
+  // Verifica se a CAN foi iniciada
+  while (CAN_OK != CAN.begin(CAN_500KBPS)) 
+  {             
+      SERIAL_PORT_MONITOR.println("CAN Falhou, tentando novamente...");
+      delay(100);
+  }
+  SERIAL_PORT_MONITOR.println("CAN Iniciada, Tudo OK!");
   
 }
 int Tempo = 0;
@@ -67,24 +71,27 @@ void loop()
   if(Tempo%1000 == 0) // Leitura de dados a cada 1 segundo
   {
     TempCVT = Temperatura_CVT();
-    Freio = Critico_Freio();
+    Freio = Freio_Estacionario();
     Transdutores();
     if(TempCVT >= 90)
       Critico_Temp = 1;
     else
       Critico_Temp = 0;
+    // Escreve os dados na mensagem CAN
     MsgCAN[0] = TempCVT;
     MsgCAN[1] = Critico_Temp;
     MsgCAN[2] = Freio;
     MsgCAN[3] = ValorTrans1;
     MsgCAN[4] = ValorTrans2;
     MsgCAN[5] = CAN_ID;
+    // Envia a Mensagem conforme a forma do cabeçalho
     CAN.sendMsgBuf(CAN_ID, 0, 6, MsgCAN);
   }
 }
 
 /*
     Função para leitura da temperatura da CVT
+    Utilizamos um módulo de arduino(MAX6675) para obter a temperatura ambiente da CVT
     Parâmetros : VOID
     Return : Float do valor da temperatura em celsius
  */
@@ -95,16 +102,21 @@ float Temperatura_CVT()
 
 /*
     Função para leitura do freio estacionário
+    A perinha de freio funcio igual um botão, ou seja, permite a passagem
+    de sinal somente se fechada(freio acionado), nosso código faz a leitura
+    do sinal em 1(Está ativo) ou 0(Está inativo)
     Parâmetros : VOID
     Return : TRUE(1) se freio precionado, senão FALSE(0)
  */
-int Critico_Freio()
+int Freio_Estacionario()
 {
   return digitalRead(PIN_Freio);
 }
 
 /*
     Função para leitura dos transdutores de pressão
+    Utilizamos das portas analógicas do Arduino para ler um sinal de tensão de até 5V
+    recebidos doss transdutores de pressão da linha de freio
     Parâmetros : VOID
     Return : VOID, Tensão recebida pelos transdutores
  */
