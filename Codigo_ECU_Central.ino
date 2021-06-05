@@ -8,12 +8,12 @@
    Método de envio: Utilização de módulo CAN MCP2515
 */
 
-// INCLUDE DAS BIBLIOTECAS
+// Include de bibliotecas
 #include <max6675.h> // Biblioteca do termopar
 #include "mcp2515_can.h" // Biblioteca módulo CAN
 #include <SPI.h> // Biblioteca de comunicação do módulo CAN
 
-// PROTÓTIPO DAS FUNÇÕES
+// Protótipo das funções
 int Freio_Estacionario();
 float Temperatura_CVT();
 void Transdutores();
