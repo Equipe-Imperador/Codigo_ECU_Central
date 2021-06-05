@@ -3,7 +3,7 @@
    AUTOR: Juliana Moreira e Matheus Henrique Orsini da Silva
    31/05/2021
    Codigo ECU Central
-   INPUTS:   CS-CVT, SCK-CVT, SO-CVT, TRANSDUTOR-1, TRANSDUTOR-2, FREIO ESTACIONÁRIO
+   INPUTS:   CS-CVT, SCK-CVT, SO-CVT, TRANSDUTOR-1, TRANSDUTOR-2, FREIO_ESTACIONÁRIO
    OUTPUTS:  MsgCAN{Temperatura, CriticoTemperatura, FreioEstacionario, Transdutor1, Transdutor2, CAN_ID}
    Método de envio: Utilização de módulo CAN MCP2515
 */
@@ -28,13 +28,14 @@ int Freio = 0; // Variável para armazernar o freio estacionário
 #define SPI_CS 10
 mcp2515_can CAN(SPI_CS); // Cria classe da CAN
 unsigned char MsgCAN[8] = {0, 0, 0, 0, 0, 0, 0, 0}; // Vetor da MSG CAN
+unsigned long int Tempo = 0;
 
 //Sensor de Temperatura CVT
 #define CVT_SCK 9
 #define CVT_CS 8
 #define CVT_SO 7
 float TempCVT = 0; // Variável para armazenar temperatura
-int Critico_Temp = 0; // Variável do crítico
+unsigned short int Critico_Temp = 0; // Variável do crítico
 MAX6675 Termopar(CVT_SCK , CVT_CS, CVT_SO); // Cria classe do sensor
 
 // Transdutores de pressão
@@ -64,7 +65,7 @@ void setup()
   SERIAL_PORT_MONITOR.println("CAN Iniciada, Tudo OK!");
   
 }
-int Tempo = 0;
+
 void loop() 
 {
   Tempo = millis();
