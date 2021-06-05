@@ -27,7 +27,7 @@ int Freio = 0; // Variável para armazernar o freio estacionário
 #define CAN_ID 0x01
 #define SPI_CS 10
 mcp2515_can CAN(SPI_CS); // Cria classe da CAN
-unsigned char MsgCAN[6] = {0, 0, 0, 0, 0, 0}; // Vetor da MSG CAN
+unsigned char MsgCAN[8] = {0, 0, 0, 0, 0, 0, 0, 0}; // Vetor da MSG CAN
 
 //Sensor de Temperatura CVT
 #define CVT_SCK 9
@@ -85,7 +85,7 @@ void loop()
     MsgCAN[4] = ValorTrans2;
     MsgCAN[5] = CAN_ID;
     // Envia a Mensagem conforme a forma do cabeçalho
-    CAN.sendMsgBuf(CAN_ID, 0, 6, MsgCAN);
+    CAN.sendMsgBuf(CAN_ID, 0, 8, MsgCAN);
   }
 }
 
