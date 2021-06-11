@@ -126,8 +126,8 @@ void Transdutores()
   /*
       Na entrada analogica a voltagem de entrada é convertina para
       um numero entre 0-1023, para obter o valor em tensão faça:
-                     (ValorAnalogico*5)/1024
+                     (ValorAnalogico*5)/1023
    */
-  ValorTrans1 = (float)(analogRead(PIN_Trans1) * 5)/ 1024;
-  ValorTrans2 = (float)(analogRead(PIN_Trans2) * 5)/ 1024;
+  ValorTrans1 = (float)(analogRead(PIN_Trans1) * 5)/ 1023;
+  ValorTrans2 = (float)(analogRead(PIN_Trans2) * 5)/ 1023;
 }
