@@ -4,7 +4,7 @@
    31/05/2021
    Codigo ECU Central
    INPUTS:   CS-CVT, SCK-CVT, SO-CVT, TRANSDUTOR-1, TRANSDUTOR-2, FREIO_ESTACIONÁRIO
-   OUTPUTS:  MsgCAN{Temperatura, CriticoTemperatura, FreioEstacionario, Transdutor1, Transdutor2, Bateria, Vazio, Vazio}
+   OUTPUTS:  MsgCAN{Temperatura, CriticoTemperatura, FreioEstacionario, Transdutor1, Transdutor2, Bateria, CAN_ID, Vazio}
    Método de envio: Utilização de módulo CAN MCP2515
 */
 
@@ -90,6 +90,7 @@ void loop()
     MsgCAN[3] = ValorTrans1;
     MsgCAN[4] = ValorTrans2;
     MsgCAN[5] = Bat;
+    MsgCAN[6] = CAN_ID;
     // Envia a Mensagem conforme a forma do cabeçalho
     CAN.sendMsgBuf(CAN_ID, 0, 8, MsgCAN);
   }
