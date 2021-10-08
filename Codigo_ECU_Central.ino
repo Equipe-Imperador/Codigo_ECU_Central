@@ -4,7 +4,7 @@
    31/05/2021
    Codigo ECU Central
    INPUTS:   CS-CVT, SCK-CVT, SO-CVT, TRANSDUTOR-1, TRANSDUTOR-2, FREIO_ESTACIONÁRIO
-   OUTPUTS:  MsgCAN{Temperatura, CriticoTemperatura, FreioEstacionario, Bateria, CriticoBateria, Vazio, Vazio, Vazio}
+   OUTPUTS:  MsgCAN{TemperaturaCelsius, TemperaturaDecimais, CriticoTemperatura, FreioEstacionario, BateriaVoltz, BateriaMiliVoltz, CriticoBateria, Vazio}
    Método de envio: Utilização de módulo CAN MCP2515
 */
 
@@ -15,14 +15,17 @@
 
 // Protótipo das funções
 float Bateria();
+void CalcBat(unsigned short int*, unsigned short int*); // Separar bateria
 unsigned short int Freio_Estacionario();
 float Temperatura_CVT();
+void CalcTemp(unsigned short int*, unsigned short int*);
 //void Transdutores();
 
 // Bateria
 #define PIN_BAT A2
 float Bat = 0;
-unsigned short int Critico_Bat = 0;
+// Variáveis de separação e crítico
+unsigned short int Volts = 0, MiliVolts = 0, Critico_Bat = 0;
 
 // Freio Estacionário
 #define PIN_FREIO 4
@@ -40,7 +43,8 @@ unsigned long int Tempo = 0;
 #define CVT_CS 8
 #define CVT_SO 7
 float TempCVT = 0; // Variável para armazenar temperatura
-unsigned short int Critico_Temp = 0; // Variável do crítico
+// Variáveis de separação e crítico
+unsigned short int TempCelc= 0, TempDecm = 0, Critico_Temp = 0;
 MAX6675 Termopar(CVT_SCK , CVT_CS, CVT_SO); // Cria classe do sensor
 
 /* Implementação adiada
@@ -78,8 +82,8 @@ void loop()
   Tempo = millis();
   if(Tempo%1000 == 0) // Leitura de dados a cada 1 segundo
   {
-    Bat = Bateria();
-    TempCVT = Temperatura_CVT();
+    CalcBat(&Volts, &MiliVolts);
+    CalcBat(&TempCelc, &TempDecm);
     Freio = Freio_Estacionario();
     //Transdutores();
     if(TempCVT >= 90)
@@ -91,10 +95,13 @@ void loop()
     else
       Critico_Bat = 0;
     // Escreve os dados na mensagem CAN
-    MsgCAN[0] = (int)TempCVT;
-    MsgCAN[1] = Critico_Temp;
-    MsgCAN[2] = Freio;
-    MsgCAN[3] = (int)Bat;
+    MsgCAN[0] = TempCelc;
+    MsgCAN[0] = TempDecm;
+    MsgCAN[2] = Critico_Temp;
+    MsgCAN[3] = Freio;
+    MsgCAN[4] = Volts;
+    MsgCAN[5] = MiliVolts;
+    MsgCAN[6] = Critico_Bat;
     // Envia a Mensagem conforme a forma do cabeçalho
     CAN.sendMsgBuf(CAN_ID, 0, 8, MsgCAN);
   }
@@ -104,7 +111,7 @@ void loop()
     Função para leitura do status da bateria.
     A entrada analógica será utilizada para saber qunato de tensão a bateria está entregando.
     Parâmetros : VOID.
-    Return : TRUE(1) se ok com a bateria, senão FALSE(0).
+    Return : Float do DDP da bateria.
  */
 float Bateria()
 {
@@ -118,6 +125,36 @@ float Bateria()
       alteração na fonte de 12v altere a entrega de 5v.
    */
    return (float)(analogRead(PIN_BAT) * 12)/ 1023;
+}
+
+/*
+    Função para separar a Bateria.
+    Como um casa do vetor da CAN aceita somente um numero entre 0 e 255 não podemos enviar a Bateria inteira,
+    para isso será separado as primeiras duas casas das últimas duas casas em 2 variáveis.
+    Parâmetros : Endereço da Casa dos Volts, Endereço da Casa dos miliVolts.
+    Return : VOID, Modifica por referência os valores das variáveis de parâmetro.
+ */
+void CalcBat(unsigned short int* Volts, unsigned short int* MiliVolts)
+{
+  Bat = Bateria();
+  int aux = Bat * 100;
+  *Volts = (unsigned short int)aux/100; // ignora as casas decimais
+  *MiliVolts = aux % 100; // pega somente as casas decimais
+}
+
+/*
+    Função para separar a Temperatura.
+    Como um casa do vetor da CAN aceita somente um numero entre 0 e 255 não podemos enviar a Temperatura inteira,
+    para isso será separado as primeiras duas casas das últimas duas casas em 2 variáveis.
+    Parâmetros : Endereço da Casa dos Celcius, Endereço da Casa dos decimais.
+    Return : VOID, Modifica por referência os valores das variáveis de parâmetro.
+ */
+void CalcTemp(unsigned short int* Celcius, unsigned short int* Decimais)
+{
+  TempCVT = Temperatura_CVT();
+  int aux = TempCVT * 100;
+  *Celcius = (unsigned short int)aux/100; // ignora as casas decimais
+  *Decimais = aux % 100; // pega somente as casas decimais
 }
 
 /*
