@@ -22,7 +22,7 @@ void CalcTemp(unsigned short int*, unsigned short int*);
 //void Transdutores();
 
 // Bateria
-#define PIN_BAT A2
+#define PIN_BAT A0
 float Bat = 0;
 // Variáveis de separação e crítico
 unsigned short int Volts = 0, MiliVolts = 0, Critico_Bat = 0;
@@ -57,8 +57,10 @@ float ValorTrans2 = 0.0;
 */
 void setup() 
 {
-  /*
+  
   // Definição dos pinos
+  pinMode(PIN_BAT, INPUT);
+  /*
   pinMode(PIN_FREIO, INPUT);
   pinMode(PIN_TRANS1, INPUT);
   pinMode(PIN_TRANS2, INPUT);
@@ -68,13 +70,13 @@ void setup()
   // Verifica se a Serial foi iniciada
   while(!Serial){};
   // Verifica se a CAN foi iniciada
-  while (CAN_OK != CAN.begin(CAN_500KBPS)) 
+  /*while (CAN_OK != CAN.begin(CAN_500KBPS)) 
   {             
       SERIAL_PORT_MONITOR.println("CAN Falhou, tentando novamente...");
       delay(100);
   }
   SERIAL_PORT_MONITOR.println("CAN Iniciada, Tudo OK!");
-  
+  */
 }
 
 void loop() 
@@ -83,7 +85,7 @@ void loop()
   if(Tempo%1000 == 0) // Leitura de dados a cada 1 segundo
   {
     CalcBat(&Volts, &MiliVolts);
-    CalcBat(&TempCelc, &TempDecm);
+    CalcTemp(&TempCelc, &TempDecm);
     Freio = Freio_Estacionario();
     //Transdutores();
     if(TempCVT >= 90)
@@ -96,7 +98,7 @@ void loop()
       Critico_Bat = 0;
     // Escreve os dados na mensagem CAN
     MsgCAN[0] = TempCelc;
-    MsgCAN[0] = TempDecm;
+    MsgCAN[1] = TempDecm;
     MsgCAN[2] = Critico_Temp;
     MsgCAN[3] = Freio;
     MsgCAN[4] = Volts;
@@ -137,9 +139,9 @@ float Bateria()
 void CalcBat(unsigned short int* Volts, unsigned short int* MiliVolts)
 {
   Bat = Bateria();
-  int aux = Bat * 100;
-  *Volts = (unsigned short int)aux/100; // ignora as casas decimais
-  *MiliVolts = aux % 100; // pega somente as casas decimais
+  int auxBat = Bat * 100;
+  *Volts = (unsigned short int)auxBat/100; // ignora as casas decimais
+  *MiliVolts = auxBat % 100; // pega somente as casas decimais
 }
 
 /*
@@ -152,9 +154,9 @@ void CalcBat(unsigned short int* Volts, unsigned short int* MiliVolts)
 void CalcTemp(unsigned short int* Celcius, unsigned short int* Decimais)
 {
   TempCVT = Temperatura_CVT();
-  int aux = TempCVT * 100;
-  *Celcius = (unsigned short int)aux/100; // ignora as casas decimais
-  *Decimais = aux % 100; // pega somente as casas decimais
+  int auxTemp = TempCVT * 100;
+  *Celcius = (unsigned short int)auxTemp/100; // ignora as casas decimais
+  *Decimais = auxTemp % 100; // pega somente as casas decimais
 }
 
 /*
