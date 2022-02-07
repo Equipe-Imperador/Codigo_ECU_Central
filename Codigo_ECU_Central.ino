@@ -60,11 +60,11 @@ void setup()
   
   // Definição dos pinos
   pinMode(PIN_BAT, INPUT);
-  /*
   pinMode(PIN_FREIO, INPUT);
+  /*
   pinMode(PIN_TRANS1, INPUT);
   pinMode(PIN_TRANS2, INPUT);
-*/
+  */
   // Cria Comunicação Serial
   SERIAL_PORT_MONITOR.begin(115200);
   // Verifica se a Serial foi iniciada
@@ -78,7 +78,7 @@ void setup()
   SERIAL_PORT_MONITOR.println("CAN Iniciada, Tudo OK!");
   
 }
-
+unsigned char Teste[8] = {0};
 void loop() 
 {
   Tempo = millis();
@@ -97,15 +97,27 @@ void loop()
     else
       Critico_Bat = 0;
     // Escreve os dados na mensagem CAN
-    MsgCAN[0] = TempCelc;
-    MsgCAN[1] = TempDecm;
-    MsgCAN[2] = Critico_Temp;
-    MsgCAN[3] = Freio;
-    MsgCAN[4] = Volts;
-    MsgCAN[5] = MiliVolts;
-    MsgCAN[6] = Critico_Bat;
+    MsgCAN[0] = (unsigned char)TempCelc;
+    MsgCAN[1] = (unsigned char)TempDecm;
+    MsgCAN[2] = (unsigned char)Critico_Temp;
+    MsgCAN[3] = (unsigned char)Freio;
+    MsgCAN[4] = (unsigned char)Volts;
+    MsgCAN[5] = (unsigned char)MiliVolts;
+    MsgCAN[6] = (unsigned char)Critico_Bat;
     // Envia a Mensagem conforme a forma do cabeçalho
-    CAN.sendMsgBuf(CAN_ID, 0, 8, MsgCAN);
+    //CAN.sendMsgBuf(0x01, 0, 8, MsgCAN);
+    for(int i = 0; i <= 7; i++)
+    {
+      Teste[i]++;
+    }
+    CAN.sendMsgBuf(0x01, 0, 8, MsgCAN);
+    SERIAL_PORT_MONITOR.print(TempCelc); SERIAL_PORT_MONITOR.print("; ");
+    SERIAL_PORT_MONITOR.print(TempDecm); SERIAL_PORT_MONITOR.print("; ");
+    SERIAL_PORT_MONITOR.print(Critico_Temp); SERIAL_PORT_MONITOR.print("; ");
+    SERIAL_PORT_MONITOR.print(Freio); SERIAL_PORT_MONITOR.print("; ");
+    SERIAL_PORT_MONITOR.print(Volts); SERIAL_PORT_MONITOR.print("; ");
+    SERIAL_PORT_MONITOR.print(MiliVolts); SERIAL_PORT_MONITOR.print("; ");
+    SERIAL_PORT_MONITOR.print(Critico_Bat); SERIAL_PORT_MONITOR.println("; ");
   }
 }
 
