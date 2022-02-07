@@ -70,13 +70,13 @@ void setup()
   // Verifica se a Serial foi iniciada
   while(!Serial){};
   // Verifica se a CAN foi iniciada
-  /*while (CAN_OK != CAN.begin(CAN_500KBPS)) 
+  while (CAN_OK != CAN.begin(CAN_500KBPS)) 
   {             
       SERIAL_PORT_MONITOR.println("CAN Falhou, tentando novamente...");
       delay(100);
   }
   SERIAL_PORT_MONITOR.println("CAN Iniciada, Tudo OK!");
-  */
+  
 }
 
 void loop() 
