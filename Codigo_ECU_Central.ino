@@ -78,7 +78,7 @@ void setup()
   SERIAL_PORT_MONITOR.println("CAN Iniciada, Tudo OK!");
   
 }
-unsigned char Teste[8] = {0};
+
 void loop() 
 {
   Tempo = millis();
@@ -104,20 +104,11 @@ void loop()
     MsgCAN[4] = (unsigned char)Volts;
     MsgCAN[5] = (unsigned char)MiliVolts;
     MsgCAN[6] = (unsigned char)Critico_Bat;
+    
     // Envia a Mensagem conforme a forma do cabeçalho
-    //CAN.sendMsgBuf(0x01, 0, 8, MsgCAN);
-    for(int i = 0; i <= 7; i++)
-    {
-      Teste[i]++;
-    }
-    CAN.sendMsgBuf(0x01, 0, 8, MsgCAN);
-    SERIAL_PORT_MONITOR.print(TempCelc); SERIAL_PORT_MONITOR.print("; ");
-    SERIAL_PORT_MONITOR.print(TempDecm); SERIAL_PORT_MONITOR.print("; ");
-    SERIAL_PORT_MONITOR.print(Critico_Temp); SERIAL_PORT_MONITOR.print("; ");
-    SERIAL_PORT_MONITOR.print(Freio); SERIAL_PORT_MONITOR.print("; ");
-    SERIAL_PORT_MONITOR.print(Volts); SERIAL_PORT_MONITOR.print("; ");
-    SERIAL_PORT_MONITOR.print(MiliVolts); SERIAL_PORT_MONITOR.print("; ");
-    SERIAL_PORT_MONITOR.print(Critico_Bat); SERIAL_PORT_MONITOR.println("; ");
+    CAN.sendMsgBuf(CAN_ID, 0, 8, MsgCAN);
+   
+ 
   }
 }
 
